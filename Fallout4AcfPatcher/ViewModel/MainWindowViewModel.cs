@@ -14,15 +14,15 @@ namespace Fallout4AcfPatcher.ViewModel
         
         public RelayCommand PatchAcfCommand { get; set; }
 
-        public string? filepath;
+        private string? _filepath;
         public string? FilePath { 
             get 
             { 
-                return filepath; 
+                return _filepath; 
             } 
             set 
             {
-                filepath = value;
+                _filepath = value;
 
                 OnPropertyChanged();
             } 
@@ -53,12 +53,12 @@ namespace Fallout4AcfPatcher.ViewModel
         public readonly Dictionary<int, string> gameDepotDict = new Dictionary<int, string>
         {
             { 377161, "5983086794954940044" }, // Fallout 4 content_a
-            { 377162, "5433405173062582852" }, // Fallout 4.exe
-            { 377163, "8360827888850301367" }, // Fallout 4 content_b
+            { 377162, "387388833281246371" }, // Fallout 4.exe
+            { 377163, "8363807899725426636" }, // Fallout 4 content_b
             { 377164, "8492427313392140315" }, // Fallout 4 english
             { 435870, "1213339795579796878" }, // Fallout 4 - Automatron
-            { 435871, "471362073238143096" },  // Fallout 4 - Automatron english
-            { 435880, "7708996200055144433" }, // Fallout 4 - Wasteland Workshop
+            { 435871, "4060235024162383907" },  // Fallout 4 - Automatron english
+            { 435880, "7797822138743384972" }, // Fallout 4 - Wasteland Workshop
             { 435881, "1207717296920736193" }, // Fallout 4 - Far Harbor
             { 435882, "8482181819175811242" }, // Fallout 4 - Far Harbor english
             { 480630, "5527412439359349504" }, // Fallout 4 - Contraptions Workshop
@@ -89,8 +89,8 @@ namespace Fallout4AcfPatcher.ViewModel
         // This will be manually updated instead if necessary, not that tedious but requires a new build
         public readonly Dictionary<int, string> creationKitDepotDict = new Dictionary<int, string>
         {
-            { 1946161, "7144083600018745248" },
-            { 1946162, "8081669680152160458" },
+            { 1946161, "5210064669056346933" },
+            { 1946162, "8888411475612042965" },
         };
 
         public MainWindowViewModel()
@@ -101,9 +101,10 @@ namespace Fallout4AcfPatcher.ViewModel
 
         public void ExecuteFileBrowser(Object obj)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            openFileDialog.Filter = "Acf file (*.acf)|*.acf";
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Acf file (*.acf)|*.acf"
+            };
 
             bool? result = openFileDialog.ShowDialog();
 
@@ -238,7 +239,7 @@ namespace Fallout4AcfPatcher.ViewModel
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public void OnPropertyChanged([CallerMemberName] string property = null)
+        public void OnPropertyChanged([CallerMemberName] string? property = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
