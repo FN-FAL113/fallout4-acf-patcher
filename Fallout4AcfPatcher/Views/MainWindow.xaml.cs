@@ -15,10 +15,6 @@ public partial class MainWindow : Window
 
         // fixes animations not working on window style set none
         WindowStyle = WindowStyle.SingleBorderWindow;
-
-        MainWindowViewModel viewModel = new MainWindowViewModel();
-
-        DataContext = viewModel;
     }
 
     private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -86,5 +82,14 @@ public partial class MainWindow : Window
             FileName = "https://github.com/FN-FAL113/Fallout4AcfPatcher",
             UseShellExecute = true
         });
+    }
+
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        MainWindowViewModel viewModel = new();
+
+        await viewModel.InitializeAsync();
+
+        DataContext = viewModel;
     }
 }
