@@ -1,5 +1,6 @@
 ﻿using Fallout4AcfPatcher.ViewModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 
 namespace Fallout4AcfPatcher;
@@ -43,9 +44,13 @@ public partial class MainWindow : Window
         MessageBox.Show(
             this,
             "Version: " + Environment.NewLine +
-            "1.0.2" + Environment.NewLine +
+            Assembly.GetEntryAssembly()!.GetName()!.Version!.ToString(3) + Environment.NewLine +
+            Environment.NewLine +
             "Supported Game Version: " + Environment.NewLine +
             "Anniversary Update" + Environment.NewLine +
+            Environment.NewLine +
+            "This app prevents the game from being updated by steam to maintain your current Pre-NG build." +
+            Environment.NewLine +
             Environment.NewLine +
             "Also works for Creation Kit, just patch the manifests file (appmanifest_1946160.acf)" + 
             Environment.NewLine +
