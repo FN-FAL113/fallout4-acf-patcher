@@ -14,6 +14,7 @@
         MaxHeight="250"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
         WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
         Icon="/Assets/vault-boy.ico"
         Title="MainWindow">
     <WindowChrome.WindowChrome>

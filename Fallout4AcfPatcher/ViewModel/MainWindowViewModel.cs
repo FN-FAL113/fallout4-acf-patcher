@@ -1,10 +1,13 @@
 ﻿using Fallout4AcfPatcher.Commands;
+using Fallout4AcfPatcher.Services;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fallout4AcfPatcher.ViewModel
 {
@@ -48,26 +51,10 @@ namespace Fallout4AcfPatcher.ViewModel
 
         // Steamdb cannot be scraped due to anti-bot measures
         // Steam api has a risk of api key leakage unless api calls are made on a secure server
-        // Steam api for game depot data also requires steam game publisher api key (not easily obtainable)
-        // This will be manually updated instead if necessary, not that tedious but requires a new build
-        public readonly Dictionary<int, string> gameDepotDict = new Dictionary<int, string>
-        {
-            { 377161, "5983086794954940044" }, // Fallout 4 content_a
-            { 377162, "387388833281246371" }, // Fallout 4.exe
-            { 377163, "8363807899725426636" }, // Fallout 4 content_b
-            { 377164, "8492427313392140315" }, // Fallout 4 english
-            { 435870, "1213339795579796878" }, // Fallout 4 - Automatron
-            { 435871, "4060235024162383907" },  // Fallout 4 - Automatron english
-            { 435880, "7797822138743384972" }, // Fallout 4 - Wasteland Workshop
-            { 435881, "1207717296920736193" }, // Fallout 4 - Far Harbor
-            { 435882, "8482181819175811242" }, // Fallout 4 - Far Harbor english
-            { 480630, "5527412439359349504" }, // Fallout 4 - Contraptions Workshop
-            { 480631, "6588493486198824788" }, // Fallout 4 - Vault-Tec Workshop
-            { 393885, "5000262035721758737" }, // Fallout 4 - Vault-Tec Workshop english
-            { 490650, "4873048792354485093" }, // Fallout 4 - Nuka-World
-            { 393895, "7677765994120765493" }, // Fallout 4 - Nuka-World english
-        };
-
+        // Steam api for game depot data also requires steam game publisher api key (not easily obtainable).
+        // Manually updated through github gist.
+        public Dictionary<int, string> gameDepotDict = [];
+        
         public readonly Dictionary<string, string> creationKitMetadataDict = new Dictionary<string, string>
         {
             { "StateFlags", "4" },
@@ -85,19 +72,46 @@ namespace Fallout4AcfPatcher.ViewModel
             { "AllowOtherDownloadsWhileRunning", "0" },
             { "ScheduledAutoUpdate", "0" },
         };
-
-        // This will be manually updated instead if necessary, not that tedious but requires a new build
-        public readonly Dictionary<int, string> creationKitDepotDict = new Dictionary<int, string>
-        {
-            { 1946161, "5210064669056346933" },
-            { 1946162, "8888411475612042965" },
-        };
+        
+        // Manually updated through github gist.
+        public Dictionary<int, string> creationKitDepotDict = [];
+        
+        public bool IsLoading { get; set; }
+        private readonly DepotDataService _depotDataService = new DepotDataService();
 
         public MainWindowViewModel()
         {
             FileBrowserCommand = new RelayCommand(ExecuteFileBrowser, CanExecuteFileBrowser);
             PatchAcfCommand = new RelayCommand(ExecutePatchAcfFile, CanExecutePatchAcfFile);
         }
+
+        public async Task InitializeAsync()
+        {
+            IsLoading = true;
+            try
+            {
+                var gameDepots = await _depotDataService.FetchDepotDataAsync("https://gist.githubusercontent.com/FN-FAL113/77b11a4ccb1fe6f900c8a768b2f97152/raw/fallout4_acf_patcher_game_depot_metadata");
+                if (gameDepots.Count > 0) gameDepotDict = gameDepots;
+            
+                var ckDepots = await _depotDataService.FetchDepotDataAsync("https://gist.githubusercontent.com/FN-FAL113/96a84dba2c1f19f23040a8c0278fe1ed/raw/fallout4_acf_patcher_ck_depot_metadata");
+                if (ckDepots.Count > 0) creationKitDepotDict = ckDepots;
+            }
+            catch
+            {
+                MessageBox.Show(
+                    Application.Current.MainWindow,
+                    $"Failed to fetch game or ck depot data. Please try again or report this issue on GitHub.",
+                    "",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
 
         public void ExecuteFileBrowser(Object obj)
         {
@@ -122,6 +136,32 @@ namespace Fallout4AcfPatcher.ViewModel
 
         public void ExecutePatchAcfFile(Object obj)
         {
+            if(IsLoading)
+            {
+                MessageBox.Show(
+                   Application.Current.MainWindow,
+                   "Fetching ACF metadata. Please try again...",
+                   "",
+                   MessageBoxButton.OK,
+                   MessageBoxImage.Information
+                );
+
+                return;
+            }
+
+            if(gameDepotDict.Count == 0 || creationKitDepotDict.Count == 0)
+            {
+                MessageBox.Show(
+                    Application.Current.MainWindow,
+                    $"An error has occured: game or ck depot data is empty",
+                    "",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+
+                return;
+            }
+
             if (FilePath == null)
             {
                 MessageBox.Show(Application.Current.MainWindow, "Please select an ACF file first", "", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -162,7 +202,7 @@ namespace Fallout4AcfPatcher.ViewModel
             {
                 MessageBox.Show(
                     Application.Current.MainWindow, 
-                    $"An error occurred during file copy: {ex.Message}",
+                    $"An error has occurred during file copy: {ex.Message}",
                     "",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error
