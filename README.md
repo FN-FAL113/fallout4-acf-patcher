@@ -1,3 +1,5 @@
+
+
 # Fallout 4 ACF Patcher
 
 <div align="center">
@@ -27,7 +29,7 @@ People are getting tired of Bethesda breaking modlists with unnecessary updates.
 
 ## ❔ FAQ
 **1. Windows smartscreen detected unrecognized app/publisher<br>**
-  - If you enctouner a dialogue similar to the image below. The app requires a registered publisher which costs a lot of money. Rest assure app is safe, just **please** do not download from other sources.
+  - If you encounter a dialogue similar to the image below. The app requires a registered publisher which costs a lot of money. Rest assure app is safe, just **please** do not download from other sources.
 
 ![image](https://github.com/FN-FAL113/csgo-server-picker/assets/88238718/fe0af8a8-4195-457e-bbbf-3a772e7f646c)
 
